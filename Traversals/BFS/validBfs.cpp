@@ -100,9 +100,11 @@ bool validBfs(int n, vector<int> &sequence , vector<vector<int>> v)
     {
         g.l[i].sort([&sequence](int a,int b) {return find(sequence.begin(),sequence.end(),a)-sequence.begin()<find(sequence.begin(),sequence.end(),b)-sequence.begin();});
     }
-    g.printGraph();
+    //g.printGraph();
     vector<int> required;
     required=g.bfs(sequence[0]);
+    for(auto i:required)
+        cout<<i<<" ";
     for(int i=0;i<n;i++)
     {
         if(required[i]!=sequence[i])
