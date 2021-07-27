@@ -67,10 +67,10 @@ int messageRoute(int n,vector<vector<int>> edges)
 		}
 	}
 
-	for(int i:distance)
-		cout<<i<<" ";
-	cout<<endl;
-	return distance[distance.size()-1];
+	//for(int i:distance)
+	//	cout<<i<<" ";
+	//cout<<endl;
+	return distance[distance.size()-1]+1;
 }
 
 int main()
