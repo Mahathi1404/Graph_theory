@@ -7,126 +7,153 @@
 #include<queue>
 using namespace std;
 
-class node{
-public:
-	string name;
-	list<string> l;
-	node(string name)
-	{
-		this->name=name;
+    list<string> find_neighbours(string word,unordered_set<string> s)
+    {
+        list<string> ans;
+        for(int i=0;i<word.length();i++)
+        {
+            char ch=word[i];
+            for(char c='a';c<='z';c++)
+            {
+                if(c!=ch){
+                word[i]=c;
+                if(s.find(word)!=s.end())
+                {
+                    ans.push_back(word);
+                    s.erase(word);
+                }
+            }
+            }
+            word[i]=ch;
+        }
+        return ans;
+    }
+    unordered_map<string,list<string>> adjList(string beginWord,unordered_set<string> s)
+    {
+        unordered_map<string,list<string>> g;
+        if(s.find(beginWord)==s.end())
+            s.insert(beginWord);
+        for(auto i=s.begin();i!=s.end();i++){
+        list<string> nbrs=find_neighbours(*i,s);
+        g[*i]=nbrs;
+    }
+    return g;
+    }
+void traverse(string src,string d,unordered_map<string,vector<string>> p,vector<string> &s,vector<vector<string>> &a)
+{
+	if(src==d)
+		a.push_back(s);
+	else{
+	for(auto i:p[src]){
+			s.push_back(i);
+			traverse(i,d,p,s,a);
+			s.pop_back();
 	}
-};
-class graph{
-public:
-	unordered_map<string,node*> m;
-	graph(vector<string> dictionary)
-	{
-		//create node for each string
-		for(auto word:dictionary)
+}
+	/*for(auto i:p)
 		{
-			m[word]=new node(word);
-		}
-	}
-
-	void addEdge(string src,string des,bool undir=false)
-	{
-		m[src]->l.push_back(des);
-		if(undir)
-		{
-			m[des]->l.push_back(src);
-		}
-	}
-
-	void printGraph()
-	{
-		for(auto i:m)
-		{
-			cout<<i.first<<":";
-			node* temp=i.second;
-			for(auto j:temp->l)
-				cout<<j<<",";
-			cout<<endl;
-		}
-	}
-
-	int bfs(string src,string des)
-	{
-		queue<string> q;
-		unordered_map<string,int> visited;
-		unordered_map<string,int> distance;
-		q.push(src);
-		string temp;
-		visited[src]=1;
-		distance[src]=0;
-		while(q.empty()!=1)
-		{
-			temp=q.front();
-			q.pop();
-			if(temp==des)
-				return distance[temp]+1;
-			for(auto i:m[temp]->l){
-			if(visited.find(i)==visited.end())
+			string j=i.second;
+			//cout<<i<<": ";
+			while(j!=src)
 			{
-				visited[i]=1;
-				q.push(i);
-				distance[i]=distance[temp]+1;
+				s.push_back(p[j]);
+				traverse(p[j],d,p,vis,s,a);
 			}
-		}
-		}
+			//cout<<endl;
+		}*/
+}
 
-		if(temp==des)
-			return distance[des]+1;
-		return 0;
-	}
-};
-
-vector<vector<int>> findLadders(string beginWord, string endWord, vector<string>& wordList) {
+vector<vector<string>> dfs(string src,string des,unordered_map<string,vector<string>> p)
+{
+	//unordered_map<string,int> visited;
+	vector<vector<string>> ans;
+	vector<string> op;
+	op.push_back(src);
+	traverse(src,des,p,op,ans);
+	return ans;
+}
+vector<vector<string>> bfs(string src,string des,unordered_map<string,list<string>> g,unordered_set<string> &s)
+    {
+        queue<string> q;
+        unordered_map<string,int> visited;
+        unordered_map<string,vector<string>> parent;//(child,parent)
+        q.push(src);
+        visited[src]=1;
+        //	parent[src].push_back(src);
+        string temp;
+        while(!q.empty())
+        {
+        	int n=q.size();
+        	while(n--){
+            temp=q.front();
+            q.pop();
+            for(auto child:g[temp])
+            {
+                if(visited.count(child)==0)
+                {
+                    //cout<<child<<" "<<temp<<endl;
+                    visited[child]=visited[temp]+1;
+                    q.push(child);
+                    parent[temp].push_back(child);
+                    s.erase(child);
+                }
+                  else
+                  {
+                  	 if(visited[child]==visited[temp]+1)
+                  	 	parent[temp].push_back(child);
+                }
+            }
+        }
+    }
+         for(auto i:parent){
+          	cout<<i.first<<":";
+           	for(auto j:parent[i.first])
+           		cout<<j<<",";
+           	cout<<endl;
+          }
+        return dfs(src,des, parent);
+    }
+vector<vector<string>> findLadders(string beginWord, string endWord, vector<string>& wordList) {
 	unordered_set<string> s;
-	unordered_map<string,int> visited;
 	for(auto i: wordList){
 		s.insert(i);
-		visited[i]=0;
 	}
 	if(s.find(endWord)==s.end())
 		return {};
-	if(s.find(beginWord)==s.end())
-		wordList.push_back(beginWord);
-	graph g(wordList);
-	queue<string> q;
-	visited[beginWord]=1;
-	q.push(beginWord);
-		while(q.empty()!=1){
-			string temp=q.front();
-			q.pop();
-			string parent=temp;
-			for(int i=0;i<beginWord.length();i++)
-			{
-			char ch=temp[i];//backup
-			for(char x='a';x<='z';x++)
-			{
-				if(x!=ch)
-				{
-					temp[i]=x;
-					if(s.find(temp)!=s.end()){
-						if(visited[temp]==0){
-							g.addEdge(parent,temp);
-							q.push(temp);
-							visited[temp]=1;
-					}
-					}
-				}
-			}
-		temp[i]=ch;
-	}
-	}
-	g.printGraph();
-	return {{g.bfs(beginWord,endWord)}};
+	unordered_map<string,list<string>> graph=adjList(beginWord,s);
+	//  for(auto i:graph)
+	//  {
+	//  	cout<<i.first<<":";
+	//  	for(auto j:i.second)
+	//  	{
+	//  		cout<<j<<"->";
+	//  	}
+	//  	cout<<endl;
+	// }
+	return bfs(beginWord,endWord, graph,s);
 }
 int main()
 {
 	string beginWord = "hit";
 	string endWord = "cog";
 	vector<string> wordList = {"hot","dot","dog","lot","log","cog"};
-	vector<vector<int>> ans=findLadders(beginWord,endWord,wordList);
+	vector<vector<string>> ans=findLadders(beginWord,endWord,wordList);
+	for(auto i:ans)
+	{
+		for(auto j:i)
+		{
+			cout<<j<<",";
+		}
+		cout<<endl;
+	}
 	return 0;
 }
+
+/*
+log:cog,
+dog:cog,
+hit:hot,
+dot:dog,
+hot:dot,lot,
+lot:log,
+*/
