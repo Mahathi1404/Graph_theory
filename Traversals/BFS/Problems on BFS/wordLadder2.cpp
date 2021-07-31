@@ -50,17 +50,6 @@ void traverse(string src,string d,unordered_map<string,vector<string>> p,vector<
 			s.pop_back();
 	}
 }
-	/*for(auto i:p)
-		{
-			string j=i.second;
-			//cout<<i<<": ";
-			while(j!=src)
-			{
-				s.push_back(p[j]);
-				traverse(p[j],d,p,vis,s,a);
-			}
-			//cout<<endl;
-		}*/
 }
 
 vector<vector<string>> dfs(string src,string des,unordered_map<string,vector<string>> p)
@@ -105,12 +94,12 @@ vector<vector<string>> bfs(string src,string des,unordered_map<string,list<strin
             }
         }
     }
-         for(auto i:parent){
-          	cout<<i.first<<":";
-           	for(auto j:parent[i.first])
-           		cout<<j<<",";
-           	cout<<endl;
-          }
+         // for(auto i:parent){
+         //  	cout<<i.first<<":";
+         //   	for(auto j:parent[i.first])
+         //   		cout<<j<<",";
+         //   	cout<<endl;
+         //  }
         return dfs(src,des, parent);
     }
 vector<vector<string>> findLadders(string beginWord, string endWord, vector<string>& wordList) {
